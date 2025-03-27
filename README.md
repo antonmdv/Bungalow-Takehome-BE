@@ -1,94 +1,90 @@
-# Bungalow Take Home Project for Backend Developer Role
+# Notes
 
-## About This Project
-This is a Django based assignment. We have created a base project for you to work from. 
-You are free to vary from our original base if you would like to. We provide it with the intention of providing 
-a common base for all candidates to work from and to hopefully save you a bit of time. 
+Setup & Admin Access
+1. Create Admin User
+./manage.py createsuperuser --username=admin --email=admin@bungalow.com
+# password: admin
 
-If you need an introduction to Django, their docs are an excellent place to start: https://docs.djangoproject.com/en/3.2
+2. Migrate the Database
+./manage.py migrate
+# Sets up local DB schema
 
-We encourage you to use the Django Rest Framework for developing your API. This is a framework that we use extensively 
-at Bungalow, and it provides some nice functionality out of the box. https://www.django-rest-framework.org/
+3. Import Sample Data
+./manage.py import_house_data --not_dry_run
+# Imports 448 records from CSV
+# Enforces zillow_id uniqueness (by design)
+# Use --not_reset_db to retain existing data if zillow_id's are unique
+# Use --file_name to specify a different file to import
 
-## What to Build
-We would like you to build an API that can be used to query some information about houses.
-Sample data is provided in the `sample-data` folder.
-We have provided the stub for a Django command to import the data. Finish writing this code.
-You should use Django's ORM to model the data and store it in a local database.
-Then, utilize the Django Rest Framework to provide an API to query the models.
-A very basic API design here would simply return all of the data available.
-You can choose to improve and refine this very basic API design, and we encourage you to do so.
-This will give us an opportunity to see how you approach API design.
-If you are running out of time, you can outline how you would have done things differently given more time.
+4. Shell Sanity Check
+./manage.py shell
+>>> from api.models import HouseModel
+>>> HouseModel.objects.count() == 448
 
+5. Testing
+./manage.py test
+# Runs all unit tests (list, detail, reserve, auth, validation)
 
-## How Will This Be Evaluated
-We will use this project as our basis for our evaluation of your coding skill level as it relates to our team.
-To do this, we will review your code with an eye for the following:
-
-- Design Choices - choice of functionality, readability, maintainability, extendability, appropriate use of language/framework features
-- Does it work as outlined
-- Testing - have you considered how you'd test your code?
-- Documentation - have you provided context around decisions and assumptions that you have made?
-- Polish - have you produced something that would be ready to go into a production system?
-  if not, have you clearly stated what would be needed to get from where it is to that level of polish?
-
-## Time Expectations
-We know you are busy and likely have other commitments in your life, so we don't want to take too much of your time.
-We don't expect you to spend more than 2 hours working on this project. That being said, if you choose to put more or
-less time into it for whatever reason, that is your choice. Feel free to indicate in your notes below if you worked on
-this for a different amount of time and we will keep that in mind while evaluating the project. You can also provide us
-with additional context if you would like to. Additionally, we have left a spot below for you to note. If you have ideas 
-for pieces that you would have done differently or additional things you would have implemented if you had more time, 
-you can indicate those in your notes below as well, and we will use those as part of the evaluation. For example, if you 
-would have tested more, you can describe the tests that you would have written, and just provide 1 or 2 actual implemented
-tests.
-
-## Public Forks
-We encourage you to try this project without looking at the solutions others may have posted. This will give the most
-honest representation of your abilities and skills. However, we also recognize that day-to-day programming often involves 
-looking at solutions others have provided and iterating on them. Being able to pick out the best parts and truly 
-understand them well enough to make good choices about what to copy and what to pass on by is a skill in and of itself. 
-As such, if you do end up referencing someone else's work and building upon it, we ask that you note that as a comment. 
-Provide a link to the source so we can see the original work and any modifications that you chose to make. 
-
-## Setup Instructions
-1. Fork this repository and clone to your local environment. If you make your fork private, please give access to the `bungalow-engineering` user. 
-1. Install a version of Python 3 if you do not already have one. We recommend Python 3.8 or newer.
-1. You can use the built-in virtual environment creation within Python to create a sandboxed set of package installs. 
-   If you already have a preferred method of virtualenv creation, feel free to proceed with your own method. 
-   `python -m venv env`    
-1. You will need to activate your virtual environment each time you want to work on your project. 
-   Run the `activate` script within the `env/bin` folder that was generated.
-1. We have provided a `requirements.txt` file you can use to install the necessary packages.
-   With your virtualenv activated run: `pip install -r requirements.txt`
-1. To run the django server run `python manage.py runserver`
-1. To run the data import command run `python manage.py import_house_data`
-1. You are now setup and ready to start coding. 
+6. API Overview
+API Root -> GET http://127.0.0.1:8000/api/
+Use the browsable DRF interface (session login supported).
 
 
-# Your Notes
-*TODO: Add your documentation here* 
+7. CRUD Support
+Action         Endpoint Method
+List Houses    /api/houses/                        GET
+Get House      /api/houses/<uuid>/                 GET
+Create House   /api/houses/                        POST
+Update House   /api/houses/<uuid>/                 PATCH
+Delete House   /api/houses/<uuid>/                 DELETE
+Reserve House  /api/houses/<uuid>/reserve_house/   POST
+
+8. Authentication
+Certain endpoints (like reserve_house) require login.
+Login: /admin/login/
+Logout: /admin/logout/
+Use session login in browser, authorization token was not setup.
+
+9. Payloads
+Sample json payload data for POST action to create new listing: 
+{
+  "area_unit": "SqFt",
+  "bathrooms": 2.5,
+  "bedrooms": 3,
+  "home_size": 1400,
+  "home_type": "SingleFamily",
+  "last_sold_date": "2020-07-15",
+  "last_sold_price": 450000,
+  "link": "https://www.zillow.com/homedetails/6051-Spring-Valley-Rd-Hidden-Hills-CA-91302/19882694_zpid/",
+  "price": 500000,
+  "property_size": 6000,
+  "rent_price": 2500,
+  "rent_zestimate_amount": 2550,
+  "rent_zestimate_last_updated": "2023-10-01",
+  "tax_value": 100000,
+  "tax_year": 2023,
+  "year_built": 1995,
+  "zestimate_amount": 505000,
+  "zestimate_last_updated": "2023-10-01",
+  "zillow_id": 123456789,
+  "address": "123 Example St",
+  "city": "Los Angeles",
+  "state": "CA",
+  "zipcode": "90001"
+}
+
+Sample json payload data for PATCH action to update existing listing: 
+{
+  "city": "San Francisco",
+  "price": 1000
+}
 
 ## Time Spent
-*Give us a rough estimate of the time you spent working on this. If you spent time learning in order to do this project please feel free to let us know that too.*
-*This makes sure that we are evaluating your work fairly and in context. It also gives us the opportunity to learn and adjust our process if needed.*
+3 hours
 
 ## Assumptions
-*Did you find yourself needing to make assumptions to finish this?*
-*If so, what were they and how did they impact your design/code?*
-
+Not splitting row in the CSV into different models and linking them
 
 ## Next Steps
-*Provide us with some notes about what you would do next if you had more time.* 
-*Are there additional features that you would want to add? Specific improvements to your code you would make?*
-### Features
-
-### Testing
-
-### Anything else needed to make this production ready?
-
-
-## How to Use
-*Provide any end user documentation you think is necessary and useful here*
+Splitting view futher, splitting serializers and having higherarchical inheritance structure. Splitting models into objects pulled from zillow and our own models. Possibly addding nested data models like adresses, etc, depending on the business needs.
 
